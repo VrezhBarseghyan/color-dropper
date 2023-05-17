@@ -1,114 +1,93 @@
-import React, { useRef, useEffect, useState } from 'react';
-import ImageUploader from './ImageUploader';
+import React, { useState, useRef, useEffect } from 'react';
+import styles from "../Styles.module.css"
 
 const Canvas = () => {
   const canvasRef = useRef(null);
-  const imageRef = useRef(null);
-  const scale = useRef(1);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [hoveredColor, setHoveredColor] = useState(null);
-  const [showHoveredColor, setShowHoveredColor] = useState(false);
-
-  const handleImageUpload = (file) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const image = new Image();
-      image.onload = () => {
-        scale.current = 1; // Reset the scale
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      };
-      image.src = e.target.result;
-      imageRef.current = image;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleColorPick = (event) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const [r, g, b] = context.getImageData(x, y, 1, 1).data;
-    const hexColor = rgbToHex(r, g, b);
-    setSelectedColor(hexColor);
-    setShowHoveredColor(false); // Hide hovered color after using it
-  };
-
-  const handleMouseMove = (event) => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const [r, g, b] = context.getImageData(x, y, 1, 1).data;
-    const hexColor = rgbToHex(r, g, b);
-    if (showHoveredColor) {
-      setHoveredColor(hexColor);
-    }
-  };
-
-  const toggleHoveredColor = () => {
-    setShowHoveredColor(!showHoveredColor);
-  };
-
-  const rgbToHex = (r, g, b) => {
-    const componentToHex = (c) => {
-      const hex = c.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    };
-
-    const red = componentToHex(r);
-    const green = componentToHex(g);
-    const blue = componentToHex(b);
-    return '#' + red + green + blue;
-  };
+  const [image, setImage] = useState(null);
+  const [colorPickerEnabled, setColorPickerEnabled] = useState(false);
+  const [pickedColor, setPickedColor] = useState('');
+  const [hoveredColor, setHoveredColor] = useState('');
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 500;
+    canvas.height = 500;
 
-    // Customize the initial canvas appearance
-    context.fillStyle = 'blue';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    if (image) {
+      const img = new Image();
+      img.src = URL.createObjectURL(image);
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      };
+    }
+  }, [image]);
 
-    const handleClick = () => {
-      setShowHoveredColor(false); // Hide hovered color when canvas is clicked
-    };
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    setImage(file);
+  };
 
-    canvas.addEventListener('click', handleClick);
+  const handleCanvasClick = (event) => {
+    if (colorPickerEnabled) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const imageData = ctx.getImageData(x, y, 1, 1);
+      const [r, g, b, a] = imageData.data;
+      const hex = rgbToHex(r, g, b);
+      setPickedColor(hex);
+      setColorPickerEnabled(false);
+      setHoveredColor(''); // Clear the hovered color
+    }
+  };
 
-    return () => {
-      canvas.removeEventListener('click', handleClick);
-    };
-  }, []);
+  const handleMouseMove = (event) => {
+    if (colorPickerEnabled) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const imageData = ctx.getImageData(x, y, 1, 1);
+      const [r, g, b, a] = imageData.data;
+      const hex = rgbToHex(r, g, b);
+      setHoveredColor(hex);
+    }
+  };
+
+  const handleMouseOut = () => {
+    setHoveredColor('');
+  };
+
+  const rgbToHex = (r, g, b) => {
+    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+  };
 
   return (
-    <div>
-      <ImageUploader onImageUpload={handleImageUpload} />
-      <div>
-        <button onClick={toggleHoveredColor}>
-          {showHoveredColor ? 'Hide Hovered Color' : 'Show Hovered Color'}
-          
-        </button>
-      </div>
+    <div className={styles.canvasContainer}>
+      <input type="file" accept="image/*" onChange={handleImageUpload} />
       <canvas
         ref={canvasRef}
-        width={400}
-        height={400}
-        onClick={handleColorPick}
+        onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
-      />
-      {selectedColor && <div>Selected Color: {selectedColor}</div>}
-      {showHoveredColor && hoveredColor && <div>Hovered Color: {hoveredColor}</div>}
+        onMouseOut={handleMouseOut}
+        className={styles.canvas}
+        ></canvas>
+      <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
+        {colorPickerEnabled ? 'Disable Color Picker' : 'Enable Color Picker'}
+      </button>
+      <div>
+        Picked Color: <span>{pickedColor}</span>
+      </div>
+      {hoveredColor && (
+        <div>
+          Hovered Color: <span>{hoveredColor}</span>
+        </div>
+      )}
     </div>
   );
 };
