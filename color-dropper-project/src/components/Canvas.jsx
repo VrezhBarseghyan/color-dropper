@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import styles from "../Styles.module.css"
+import styles from '../Styles.module.css';
 
 const Canvas = () => {
   const canvasRef = useRef(null);
@@ -7,6 +7,8 @@ const Canvas = () => {
   const [colorPickerEnabled, setColorPickerEnabled] = useState(false);
   const [pickedColor, setPickedColor] = useState('');
   const [hoveredColor, setHoveredColor] = useState('');
+  const [pencilEnabled, setPencilEnabled] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,7 +43,7 @@ const Canvas = () => {
       const hex = rgbToHex(r, g, b);
       setPickedColor(hex);
       setColorPickerEnabled(false);
-      setHoveredColor(''); // Clear the hovered color
+      setHoveredColor('');
     }
   };
 
@@ -57,10 +59,41 @@ const Canvas = () => {
       const hex = rgbToHex(r, g, b);
       setHoveredColor(hex);
     }
+
+    if (pencilEnabled && isDrawing) {
+      drawOnCanvas(event);
+    }
   };
 
   const handleMouseOut = () => {
     setHoveredColor('');
+  };
+
+  const drawOnCanvas = (event) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    ctx.lineWidth = 5;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = pickedColor;
+
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const togglePencil = () => {
+    setPencilEnabled(!pencilEnabled);
+  };
+
+  const startDrawing = () => {
+    setIsDrawing(true);
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
   };
 
   const rgbToHex = (r, g, b) => {
@@ -75,8 +108,10 @@ const Canvas = () => {
         onClick={handleCanvasClick}
         onMouseMove={handleMouseMove}
         onMouseOut={handleMouseOut}
+        onMouseDown={startDrawing}
+        onMouseUp={stopDrawing}
         className={styles.canvas}
-        ></canvas>
+      ></canvas>
       <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
         {colorPickerEnabled ? 'Disable Color Picker' : 'Enable Color Picker'}
       </button>
@@ -88,6 +123,9 @@ const Canvas = () => {
           Hovered Color: <span>{hoveredColor}</span>
         </div>
       )}
+      <button onClick={togglePencil} disabled={!pickedColor}>
+        {pencilEnabled ? 'Disable Pencil' : 'Enable Pencil'}
+      </button>
     </div>
   );
 };

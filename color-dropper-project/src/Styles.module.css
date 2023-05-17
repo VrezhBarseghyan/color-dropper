@@ -1,8 +1,9 @@
 .canvasContainer {
-    margin-bottom: 16px;
+    position: relative;
   }
   
   .canvas {
     border: 1px solid black;
   }
+
   
