@@ -101,8 +101,27 @@ const Canvas = () => {
   };
 
   return (
-    <div className={styles.canvasContainer}>
+    <div>
       <input type="file" accept="image/*" onChange={handleImageUpload} />
+      <div className={styles.colorContainer}>
+        <div
+          className={styles.hoveredColor}
+          style={{ backgroundColor: hoveredColor }}
+        ></div>
+        <div
+            className={styles.pickedColor}
+            style={{ backgroundColor: pickedColor }}
+          ></div>
+         <div>
+          Picked Color: <span>{pickedColor}</span>
+        </div>
+        {hoveredColor && (
+          <div>
+            Hovered Color: <span>{hoveredColor}</span>
+          </div>
+      )}
+      </div>
+      <div className={styles.canvasContainer}>
       <canvas
         ref={canvasRef}
         onClick={handleCanvasClick}
@@ -112,17 +131,10 @@ const Canvas = () => {
         onMouseUp={stopDrawing}
         className={styles.canvas}
       ></canvas>
+      </div>
       <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
         {colorPickerEnabled ? 'Disable Color Picker' : 'Enable Color Picker'}
       </button>
-      <div>
-        Picked Color: <span>{pickedColor}</span>
-      </div>
-      {hoveredColor && (
-        <div>
-          Hovered Color: <span>{hoveredColor}</span>
-        </div>
-      )}
       <button onClick={togglePencil} disabled={!pickedColor}>
         {pencilEnabled ? 'Disable Pencil' : 'Enable Pencil'}
       </button>
