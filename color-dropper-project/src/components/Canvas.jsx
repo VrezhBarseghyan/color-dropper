@@ -9,6 +9,7 @@ const Canvas = () => {
   const [hoveredColor, setHoveredColor] = useState('');
   const [pencilEnabled, setPencilEnabled] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -39,7 +40,7 @@ const Canvas = () => {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const imageData = ctx.getImageData(x, y, 1, 1);
-      const [r, g, b, a] = imageData.data;
+      const [r, g, b] = imageData.data;
       const hex = rgbToHex(r, g, b);
       setPickedColor(hex);
       setColorPickerEnabled(false);
@@ -55,9 +56,10 @@ const Canvas = () => {
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const imageData = ctx.getImageData(x, y, 1, 1);
-      const [r, g, b, a] = imageData.data;
+      const [r, g, b] = imageData.data;
       const hex = rgbToHex(r, g, b);
       setHoveredColor(hex);
+      setMousePosition({ x: event.clientX, y: event.clientY });
     }
 
     if (pencilEnabled && isDrawing) {
@@ -100,41 +102,44 @@ const Canvas = () => {
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
   };
 
+  const hoveredColorPreviewStyle = {
+    left: mousePosition.x + 10,
+    top: mousePosition.y + 10,
+    backgroundColor: hoveredColor,
+  };
+
   return (
-    <div>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      <div className={styles.colorContainer}>
-        <div
-          className={styles.hoveredColor}
-          style={{ backgroundColor: hoveredColor }}
-        ></div>
-        <div
-            className={styles.pickedColor}
-            style={{ backgroundColor: pickedColor }}
-          ></div>
-         <div>
-          Picked Color: <span>{pickedColor}</span>
-        </div>
-        {hoveredColor && (
-          <div>
-            Hovered Color: <span>{hoveredColor}</span>
-          </div>
-      )}
+    <div className={styles.canvasContainer}>
+      <div className={styles.inputButton}>
+      <label> Upload Image
+        <input type="file" accept="image/*" onChange={handleImageUpload} hidden/>
+      </label>
       </div>
-      <div className={styles.canvasContainer}>
-      <canvas
-        ref={canvasRef}
-        onClick={handleCanvasClick}
-        onMouseMove={handleMouseMove}
-        onMouseOut={handleMouseOut}
-        onMouseDown={startDrawing}
-        onMouseUp={stopDrawing}
-        className={styles.canvas}
-      ></canvas>
+      <div>
+        <canvas
+          ref={canvasRef}
+          onClick={handleCanvasClick}
+          onMouseMove={handleMouseMove}
+          onMouseOut={handleMouseOut}
+          onMouseDown={startDrawing}
+          onMouseUp={stopDrawing}
+          className={styles.canvas}
+        ></canvas>
+        {colorPickerEnabled && hoveredColor && (
+          <div style={hoveredColorPreviewStyle} className={styles.hoveredColorPreview}>
+            <span className={styles.hoveredColorSpan}>{hoveredColor}</span>
+          </div>
+        )}
       </div>
       <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
         {colorPickerEnabled ? 'Disable Color Picker' : 'Enable Color Picker'}
       </button>
+      <div className={styles.colorContainer}>
+        <div className={styles.pickedColor} style={{ backgroundColor: pickedColor }}></div>
+        <div className={styles.titleText}>
+          Picked Color: <span>{pickedColor}</span>
+        </div>
+      </div>
       <button onClick={togglePencil} disabled={!pickedColor}>
         {pencilEnabled ? 'Disable Pencil' : 'Enable Pencil'}
       </button>
