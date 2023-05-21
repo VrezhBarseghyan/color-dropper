@@ -18,7 +18,7 @@ const Canvas = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width = 500;
+    canvas.width = 500; 
     canvas.height = 500;
 
     if (image) {
