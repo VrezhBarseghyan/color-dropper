@@ -21,7 +21,7 @@ body {
   border: 1px solid #000;
   cursor: crosshair;
   background-color: white;
-  margin: 10px;
+  margin: 20px;
 }
 
 label {
@@ -34,6 +34,10 @@ label {
   margin-top: 1rem;
 }
 
+label:hover {
+  background-color: rgb(182, 48, 169);
+}
+
 button{
     background-color: rgb(239, 72, 222);
     color: rgb(0, 0, 0);
@@ -42,6 +46,10 @@ button{
     border-radius: 0.3rem;
     cursor: pointer;
     margin-top: 1rem;
+  }
+
+  button:hover{
+    background-color: rgb(182, 48, 169);
   }
 
 

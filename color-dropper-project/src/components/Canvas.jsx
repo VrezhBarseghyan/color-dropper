@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../Styles.module.css';
+import ColorPicker from './ColorPicker';
+import ColorPreview from './ColorPreview';
+import ImageUploader from './ImageUploader';
+import PencilTool from './PencilTool';
 
 const Canvas = () => {
   const canvasRef = useRef(null);
@@ -110,11 +114,8 @@ const Canvas = () => {
 
   return (
     <div className={styles.canvasContainer}>
-      <div className={styles.inputButton}>
-      <label> Upload Image
-        <input type="file" accept="image/*" onChange={handleImageUpload} hidden/>
-      </label>
-      </div>
+      <ImageUploader handleImageUpload={handleImageUpload} />
+
       <div>
         <canvas
           ref={canvasRef}
@@ -125,24 +126,25 @@ const Canvas = () => {
           onMouseUp={stopDrawing}
           className={styles.canvas}
         ></canvas>
-        {colorPickerEnabled && hoveredColor && (
-          <div style={hoveredColorPreviewStyle} className={styles.hoveredColorPreview}>
-            <span className={styles.hoveredColorSpan}>{hoveredColor}</span>
-          </div>
-        )}
+
+        <ColorPicker
+          colorPickerEnabled={colorPickerEnabled}
+          hoveredColor={hoveredColor}
+          hoveredColorPreviewStyle={hoveredColorPreviewStyle}
+        />
       </div>
+
       <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
         {colorPickerEnabled ? 'Disable Color Picker' : 'Enable Color Picker'}
       </button>
-      <div className={styles.colorContainer}>
-        <div className={styles.pickedColor} style={{ backgroundColor: pickedColor }}></div>
-        <div className={styles.titleText}>
-          Picked Color: <span>{pickedColor}</span>
-        </div>
-      </div>
-      <button onClick={togglePencil} disabled={!pickedColor}>
-        {pencilEnabled ? 'Disable Pencil' : 'Enable Pencil'}
-      </button>
+
+      <ColorPreview pickedColor={pickedColor} />
+
+      <PencilTool
+        pencilEnabled={pencilEnabled}
+        pickedColor={pickedColor}
+        togglePencil={togglePencil}
+      />
     </div>
   );
 };
