@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styles from '../Styles.module.css';
-import ColorPicker from './ColorPicker';
+import '../App.css';
 import ColorPreview from './ColorPreview';
 import ImageUploader from './ImageUploader';
 import PencilTool from './PencilTool';
@@ -10,14 +10,12 @@ const Canvas = () => {
   const [image, setImage] = useState(null);
   const [colorPickerEnabled, setColorPickerEnabled] = useState(false);
   const [pickedColor, setPickedColor] = useState('');
-  const [hoveredColor, setHoveredColor] = useState('');
-  const [leftColor, setLeftColor] = useState('');
-  const [topColor, setTopColor] = useState('');
-  const [rightColor, setRightColor] = useState('');
-  const [bottomColor, setBottomColor] = useState('');
   const [pencilEnabled, setPencilEnabled] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [surroundingColors, setSurroundingColors] = useState([]);
+  const [middleSquareIndex] = useState(40);
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -35,6 +33,28 @@ const Canvas = () => {
     }
   }, [image]);
 
+  useEffect(() => {
+    if (colorPickerEnabled) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      const x = mousePosition.x - rect.left;
+      const y = mousePosition.y - rect.top;
+      const imageData = ctx.getImageData(x - 4, y - 4, 9, 9).data;
+
+      const colors = [];
+      for (let i = 0; i < imageData.length; i += 4) {
+        const r = imageData[i];
+        const g = imageData[i + 1];
+        const b = imageData[i + 2];
+        const hex = rgbToHex(r, g, b);
+        colors.push(hex);
+      }
+
+      setSurroundingColors(colors);
+    }
+  }, [colorPickerEnabled, mousePosition]);
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setImage(file);
@@ -47,57 +67,27 @@ const Canvas = () => {
       const rect = canvas.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
-      const imageData = ctx.getImageData(x, y, 1, 1);
-      const [r, g, b] = imageData.data;
+      const imageData = ctx.getImageData(x, y, 1, 1).data;
+      const [r, g, b] = imageData;
       const hex = rgbToHex(r, g, b);
       setPickedColor(hex);
       setColorPickerEnabled(false);
-      setHoveredColor('');
     }
   };
 
   const handleMouseMove = (event) => {
     if (colorPickerEnabled) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const imageData = ctx.getImageData(x, y, 1, 1);
-      const [r, g, b] = imageData.data;
-      const hex = rgbToHex(r, g, b);
-      setHoveredColor(hex);
       setMousePosition({ x: event.clientX, y: event.clientY });
-
-      // Get the colors of the adjacent pixels
-      const imageDataLeft = ctx.getImageData(x - 1, y, 1, 1).data;
-      const imageDataTop = ctx.getImageData(x, y - 1, 1, 1).data;
-      const imageDataRight = ctx.getImageData(x + 1, y, 1, 1).data;
-      const imageDataBottom = ctx.getImageData(x, y + 1, 1, 1).data;
-
-      const hexLeft = rgbToHex(imageDataLeft[0], imageDataLeft[1], imageDataLeft[2]);
-      const hexTop = rgbToHex(imageDataTop[0], imageDataTop[1], imageDataTop[2]);
-      const hexRight = rgbToHex(imageDataRight[0], imageDataRight[1], imageDataRight[2]);
-      const hexBottom = rgbToHex(imageDataBottom[0], imageDataBottom[1], imageDataBottom[2]);
-
-      // Update the colors of the adjacent pixels
-      setLeftColor(hexLeft);
-      setTopColor(hexTop);
-      setRightColor(hexRight);
-      setBottomColor(hexBottom);
     }
 
     if (pencilEnabled && isDrawing) {
       drawOnCanvas(event);
     }
-  };
-
-  const handleMouseOut = () => {
-    setHoveredColor('');
-    setLeftColor('');
-    setTopColor('');
-    setRightColor('');
-    setBottomColor('');
+    if (colorPickerEnabled) {
+      const squareGrid = document.getElementById("squareGrid");
+      squareGrid.style.left = `${event.clientX - 52}px`;
+      squareGrid.style.top = `${event.clientY - 138}px`;
+    }
   };
 
   const drawOnCanvas = (event) => {
@@ -139,13 +129,6 @@ const Canvas = () => {
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
   };
 
-  const surroundingSquares = {
-    left: { left: mousePosition.x - 30, top: mousePosition.y - 10 },
-    top: { left: mousePosition.x - 10, top: mousePosition.y - 30 },
-    right: { left: mousePosition.x + 10, top: mousePosition.y - 10 },
-    bottom: { left: mousePosition.x - 10, top: mousePosition.y + 10 },
-  };
-
   return (
     <div className={styles.canvasContainer}>
       <ImageUploader handleImageUpload={handleImageUpload} />
@@ -155,58 +138,28 @@ const Canvas = () => {
           ref={canvasRef}
           onClick={handleCanvasClick}
           onMouseMove={handleMouseMove}
-          onMouseOut={handleMouseOut}
           onMouseDown={startDrawing}
           onMouseUp={stopDrawing}
           className={styles.canvas}
         ></canvas>
 
-        {/* Render the surrounding squares */}
         {colorPickerEnabled && (
-        <>
-            <div
-            className={`${styles.hoveredColorPreview} ${styles.squareLeft}`}
-            style={{
-                left: surroundingSquares.left.left,
-                top: surroundingSquares.left.top,
-                backgroundColor: leftColor,
-            }}
-            ></div>
-            <div
-            className={`${styles.hoveredColorPreview} ${styles.squareTop}`}
-            style={{
-                left: surroundingSquares.top.left,
-                top: surroundingSquares.top.top,
-                backgroundColor: topColor,
-            }}
-            ></div>
-            <div
-            className={`${styles.hoveredColorPreview} ${styles.squareCenter}`}
-            style={{
-                left: mousePosition.x - 10,
-                top: mousePosition.y - 10,
-                backgroundColor: hoveredColor,
-            }}
-            ></div>
-            <div
-            className={`${styles.hoveredColorPreview} ${styles.squareRight}`}
-            style={{
-                left: surroundingSquares.right.left,
-                top: surroundingSquares.right.top,
-                backgroundColor: rightColor,
-            }}
-            ></div>
-            <div
-            className={`${styles.hoveredColorPreview} ${styles.squareBottom}`}
-            style={{
-                left: surroundingSquares.bottom.left,
-                top: surroundingSquares.bottom.top,
-                backgroundColor: bottomColor,
-            }}
-            ></div>
-        </>
+          <div id="squareGrid">
+            {[...Array(9)].map((_, row) => (
+              <div key={row} className={`${styles.squareRow}`}>
+                {[...Array(9)].map((_, col) => (
+                  <div
+                    key={col}
+                    className={`${styles.surroundingSquare} ${row * 9 + col === middleSquareIndex ? styles.middleSquare : ''}`}
+                    style={{
+                      backgroundColor: surroundingColors[row * 9 + col],
+                    }}
+                  ></div>
+                ))}
+              </div>
+            ))}
+          </div>
         )}
-
       </div>
 
       <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>

@@ -3,6 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 body {
@@ -19,7 +20,6 @@ body {
 
 .canvas {
   border: 1px solid #000;
-  cursor: crosshair;
   background-color: white;
   margin: 20px;
 }
@@ -66,45 +66,20 @@ button{
   height: 80px;
   margin-right: 10px;
 }
+  
+  .surroundingSquare {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #3d3d3d;
+    display: inline-block;
+  }
 
-.hoveredColorPreview {
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    pointer-events: none;
-    z-index: 9999;
-    border: 0.1px solid #000;
-  }
-  
-  .squareLeft {
-    left: -30px;
-    top: -10px;
-  }
-  
-  .squareTop {
-    left: -10px;
-    top: -30px;
-  }
-  
-  .squareRight {
-    left: 10px;
-    top: -10px;
-  }
-  
-  .squareBottom {
-    left: -10px;
-    top: 10px;
-  }
-  
-  .squareCenter {
-    left: -10px;
-    top: -10px;
-  }
-  
-  
-  
 
-.hoveredColorSpan {
-  margin-left: 25px;
-  background-color: #fff;
+.middleSquare {
+  border: 1px solid #000000;
 }
+
+  .squareRow {
+    display: flex;
+  }
+  
