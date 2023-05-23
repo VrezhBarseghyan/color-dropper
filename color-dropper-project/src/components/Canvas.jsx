@@ -18,7 +18,7 @@ const Canvas = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    canvas.width = 500; 
+    canvas.width = 500;
     canvas.height = 500;
 
     if (image) {
@@ -86,8 +86,13 @@ const Canvas = () => {
     ctx.lineCap = 'round';
     ctx.strokeStyle = pickedColor;
 
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    if (!isDrawing) {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
   };
 
   const togglePencil = () => {
@@ -100,6 +105,9 @@ const Canvas = () => {
 
   const stopDrawing = () => {
     setIsDrawing(false);
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath();
   };
 
   const rgbToHex = (r, g, b) => {
