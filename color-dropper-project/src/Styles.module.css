@@ -82,4 +82,12 @@ button{
   .squareRow {
     display: flex;
   }
+
+  .squareGrid {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  
   
