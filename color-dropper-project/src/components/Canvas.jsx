@@ -161,24 +161,25 @@ const Canvas = () => {
                     onMouseUp={stopDrawing}
                     className={styles.canvas}></canvas>
 
-                {colorPickerEnabled && (
-                    <div ref={squareGridRef}>
-                        {[...Array(9)].map((_, row) => (
-                            <div key={row} className={`${styles.squareRow}`}>
-                                {[...Array(9)].map((_, col) => (
-                                    <div
-                                        key={col}
-                                        className={`${styles.surroundingSquare} ${row * 9 + col === middleSquareIndex
+            {colorPickerEnabled && (
+                <div ref={squareGridRef} className={styles.colorPickerContainer}>
+                    {[...Array(9)].map((_, row) => (
+                        <div key={row} className={`${styles.squareRow}`}>
+                            {[...Array(9)].map((_, col) => (
+                                <div
+                                    key={col}
+                                    className={`${styles.surroundingSquare} ${row * 9 + col === middleSquareIndex
                                         ? styles.middleSquare
                                         : ''}`}
-                                        style={{
+                                    style={{
                                         backgroundColor: surroundingColors[row * 9 + col]
                                     }}></div>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            )}
+
             </div>
 
             <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>

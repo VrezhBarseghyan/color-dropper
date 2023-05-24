@@ -74,7 +74,6 @@ button{
     display: inline-block;
   }
 
-
 .middleSquare {
   border: 1px solid #000000;
 }
@@ -91,3 +90,10 @@ button{
   }
   
   
+  .colorPickerContainer {
+    display: none;
+}
+
+.canvas:hover + .colorPickerContainer {
+    display: block;
+}
