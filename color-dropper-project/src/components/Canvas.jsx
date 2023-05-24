@@ -84,6 +84,7 @@ const Canvas = () => {
             const hex = rgbToHex(r, g, b);
             setPickedColor(hex);
             setColorPickerEnabled(false);
+            setPencilEnabled(false); // Disable pencil tool
         }
     };
 
@@ -95,14 +96,31 @@ const Canvas = () => {
         if (pencilEnabled && isDrawing) {
             drawOnCanvas(event);
         }
+
         if (colorPickerEnabled) {
             if (squareGridRef.current) {
                 const squareGrid = squareGridRef.current;
+                const canvas = canvasRef.current;
+                const rect = canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                const middleSquareSize = 10;
+                const squareGridSize = 9;
+                const squareGridWidth = squareGridSize * middleSquareSize;
+                const squareGridHeight = squareGridSize * middleSquareSize;
+
+                const offsetX = squareGridWidth / 2;
+                const offsetY = squareGridHeight / 2;
+
+                const left = x - offsetX;
+                const top = y - offsetY;
+
                 squareGrid
                     .classList
                     .add(`${styles.squareGrid}`);
-                squareGrid.style.left = `${event.clientX - 52}px`;
-                squareGrid.style.top = `${event.clientY - 138}px`;
+                squareGrid.style.left = `${left + 508}px`;
+                squareGrid.style.top = `${top + 29}px`;
             }
         }
     };
@@ -161,28 +179,32 @@ const Canvas = () => {
                     onMouseUp={stopDrawing}
                     className={styles.canvas}></canvas>
 
-            {colorPickerEnabled && (
-                <div ref={squareGridRef} className={styles.colorPickerContainer}>
-                    {[...Array(9)].map((_, row) => (
-                        <div key={row} className={`${styles.squareRow}`}>
-                            {[...Array(9)].map((_, col) => (
-                                <div
-                                    key={col}
-                                    className={`${styles.surroundingSquare} ${row * 9 + col === middleSquareIndex
+                {colorPickerEnabled && (
+                    <div ref={squareGridRef} className={styles.colorPickerContainer}>
+                        {[...Array(9)].map((_, row) => (
+                            <div key={row} className={`${styles.squareRow}`}>
+                                {[...Array(9)].map((_, col) => (
+                                    <div
+                                        key={col}
+                                        className={`${styles.surroundingSquare} ${row * 9 + col === middleSquareIndex
                                         ? styles.middleSquare
                                         : ''}`}
-                                    style={{
+                                        style={{
                                         backgroundColor: surroundingColors[row * 9 + col]
                                     }}></div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
-            )}
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                )}
 
             </div>
 
-            <button onClick={() => setColorPickerEnabled(!colorPickerEnabled)}>
+            <button
+                onClick={() => {
+                setColorPickerEnabled(!colorPickerEnabled);
+                setPencilEnabled(false);
+            }}>
                 {colorPickerEnabled
                     ? 'Disable Color Picker'
                     : 'Enable Color Picker'}
