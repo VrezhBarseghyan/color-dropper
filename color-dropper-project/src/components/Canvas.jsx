@@ -84,7 +84,7 @@ const Canvas = () => {
             const hex = rgbToHex(r, g, b);
             setPickedColor(hex);
             setColorPickerEnabled(false);
-            setPencilEnabled(false); // Disable pencil tool
+            setPencilEnabled(false);
         }
     };
 
