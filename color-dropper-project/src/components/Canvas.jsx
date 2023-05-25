@@ -118,8 +118,8 @@ const Canvas = () => {
                 squareGrid
                     .classList
                     .add(`${styles.squareGrid}`);
-                squareGrid.style.left = `${left - 10}px`;
-                squareGrid.style.top = `${top - 90}px`;
+                squareGrid.style.left = `${left}px`;
+                squareGrid.style.top = `${top}px`;
             }
         }
     };
