@@ -101,9 +101,8 @@ const Canvas = () => {
             if (squareGridRef.current) {
                 const squareGrid = squareGridRef.current;
                 const canvas = canvasRef.current;
-                const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
+                const x = event.clientX
+                const y = event.clientY
 
                 const middleSquareSize = 10;
                 const squareGridSize = 9;
@@ -119,8 +118,8 @@ const Canvas = () => {
                 squareGrid
                     .classList
                     .add(`${styles.squareGrid}`);
-                squareGrid.style.left = `${left + 508}px`;
-                squareGrid.style.top = `${top + 29}px`;
+                squareGrid.style.left = `${left - 10}px`;
+                squareGrid.style.top = `${top - 90}px`;
             }
         }
     };
