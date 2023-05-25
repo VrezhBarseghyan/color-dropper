@@ -103,14 +103,11 @@ const Canvas = () => {
                 const x = event.clientX
                 const y = event.clientY
 
-                const left = x;
-                const top = y;
-
                 squareGrid
                     .classList
                     .add(`${styles.squareGrid}`);
-                squareGrid.style.left = `${left}px`;
-                squareGrid.style.top = `${top}px`;
+                squareGrid.style.left = `${x}px`;
+                squareGrid.style.top = `${y}px`;
             }
         }
     };
