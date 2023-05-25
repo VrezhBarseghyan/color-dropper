@@ -100,20 +100,11 @@ const Canvas = () => {
         if (colorPickerEnabled) {
             if (squareGridRef.current) {
                 const squareGrid = squareGridRef.current;
-                const canvas = canvasRef.current;
                 const x = event.clientX
                 const y = event.clientY
 
-                const middleSquareSize = 10;
-                const squareGridSize = 9;
-                const squareGridWidth = squareGridSize * middleSquareSize;
-                const squareGridHeight = squareGridSize * middleSquareSize;
-
-                const offsetX = squareGridWidth / 2;
-                const offsetY = squareGridHeight / 2;
-
-                const left = x - offsetX;
-                const top = y - offsetY;
+                const left = x;
+                const top = y;
 
                 squareGrid
                     .classList

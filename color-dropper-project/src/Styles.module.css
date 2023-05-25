@@ -83,7 +83,7 @@ button{
   }
 
   .squareGrid {
-    position: absolute;
+    position: fixed;
     pointer-events: none;
     border-radius: 50%;
     overflow: hidden;
